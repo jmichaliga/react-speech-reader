@@ -1,18 +1,68 @@
 import { useState, useEffect, useCallback } from 'react';
 
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */
+
+var __assign = function() {
+  __assign = Object.assign || function __assign(t) {
+      for (var s, i = 1, n = arguments.length; i < n; i++) {
+          s = arguments[i];
+          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+      }
+      return t;
+  };
+  return __assign.apply(this, arguments);
+};
+
+function __read(o, n) {
+  var m = typeof Symbol === "function" && o[Symbol.iterator];
+  if (!m) return o;
+  var i = m.call(o), r, ar = [], e;
+  try {
+      while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+  }
+  catch (error) { e = { error: error }; }
+  finally {
+      try {
+          if (r && !r.done && (m = i["return"])) m.call(i);
+      }
+      finally { if (e) throw e.error; }
+  }
+  return ar;
+}
+
+typeof SuppressedError === "function" ? SuppressedError : function (error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+
 function useSpeechReader(options) {
-    var _a = useState(false), speaking = _a[0], setSpeaking = _a[1];
-    var _b = useState([]), voices = _b[0], setVoices = _b[1];
+    var _a = __read(useState(false), 2), speaking = _a[0], setSpeaking = _a[1];
+    var _b = __read(useState([]), 2), voices = _b[0], setVoices = _b[1];
+    var _c = __read(useState(options), 2), currentOptions = _c[0], setCurrentOptions = _c[1];
     var supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+    useEffect(function () {
+        setCurrentOptions(options);
+    }, [options]);
     useEffect(function () {
         if (!supported)
             return;
         var updateVoices = function () {
             setVoices(window.speechSynthesis.getVoices());
         };
-        // Get initial voices
         updateVoices();
-        // Listen for voice changes
         window.speechSynthesis.onvoiceschanged = updateVoices;
         return function () {
             window.speechSynthesis.onvoiceschanged = null;
@@ -21,20 +71,19 @@ function useSpeechReader(options) {
     var speak = useCallback(function (text) {
         if (!supported)
             return;
-        // Cancel any ongoing speech
         window.speechSynthesis.cancel();
         var utterance = new SpeechSynthesisUtterance(text);
-        if (options === null || options === void 0 ? void 0 : options.voice)
-            utterance.voice = options.voice;
-        if (options === null || options === void 0 ? void 0 : options.rate)
-            utterance.rate = options.rate;
-        if (options === null || options === void 0 ? void 0 : options.pitch)
-            utterance.pitch = options.pitch;
+        if (currentOptions === null || currentOptions === void 0 ? void 0 : currentOptions.voice)
+            utterance.voice = currentOptions.voice;
+        if (currentOptions === null || currentOptions === void 0 ? void 0 : currentOptions.rate)
+            utterance.rate = currentOptions.rate;
+        if (currentOptions === null || currentOptions === void 0 ? void 0 : currentOptions.pitch)
+            utterance.pitch = currentOptions.pitch;
         utterance.onstart = function () { return setSpeaking(true); };
         utterance.onend = function () { return setSpeaking(false); };
         utterance.onerror = function () { return setSpeaking(false); };
         window.speechSynthesis.speak(utterance);
-    }, [supported, options]);
+    }, [supported, currentOptions]);
     var pause = useCallback(function () {
         if (!supported)
             return;
@@ -52,20 +101,14 @@ function useSpeechReader(options) {
         setSpeaking(false);
     }, [supported]);
     var setVoice = useCallback(function (voice) {
-        if (!supported)
-            return;
-        window.speechSynthesis.cancel();
-    }, [supported]);
+        setCurrentOptions(function (prev) { return (__assign(__assign({}, prev), { voice: voice })); });
+    }, []);
     var setRate = useCallback(function (rate) {
-        if (!supported)
-            return;
-        window.speechSynthesis.cancel();
-    }, [supported]);
+        setCurrentOptions(function (prev) { return (__assign(__assign({}, prev), { rate: rate })); });
+    }, []);
     var setPitch = useCallback(function (pitch) {
-        if (!supported)
-            return;
-        window.speechSynthesis.cancel();
-    }, [supported]);
+        setCurrentOptions(function (prev) { return (__assign(__assign({}, prev), { pitch: pitch })); });
+    }, []);
     return {
         speak: speak,
         pause: pause,

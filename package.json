@@ -1,6 +1,6 @@
 {
   "name": "react-speech-reader",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "A React hook for text-to-speech functionality with full playback control",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -11,7 +11,8 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "clean": "rimraf dist"
   },
   "keywords": [
     "react",
@@ -21,21 +22,25 @@
     "web-speech-api",
     "typescript"
   ],
-  "author": "Your Name",
+  "author": "Justin Michaliga (justin.michaliga@gmail.com)",
   "license": "MIT",
   "peerDependencies": {
     "react": ">=16.8.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.0",
-    "typescript": "^4.9.0",
-    "rollup": "^2.79.1",
+    "@rollup/plugin-commonjs": "^22.0.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-typescript": "^8.3.3",
-    "tslib": "^2.4.0"
+    "@types/react": "^16.8.0",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.79.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.9.0",
+    "react": "^16.8.0"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/react-speech-reader"
+    "url": "https://github.com/jmichaliga/react-speech-reader"
   },
   "bugs": {
     "url": "https://github.com/jmichaliga/react-speech-reader/issues"

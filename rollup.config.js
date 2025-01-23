@@ -1,6 +1,6 @@
-import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import commonjs from '@rollup/plugin-commonjs';
-import typescript from 'rollup-plugin-typescript2';
+import resolve from '@rollup/plugin-node-resolve';
 import pkg from './package.json';
 
 export default {
@@ -17,13 +17,15 @@ export default {
       sourcemap: true,
     },
   ],
-  external: [...Object.keys(pkg.peerDependencies || {})],
   plugins: [
     resolve(),
     commonjs(),
     typescript({
-      typescript: require('typescript'),
-      useTsconfigDeclarationDir: true,
-    }),
+      tsconfig: './tsconfig.json',
+      declaration: true,
+      declarationDir: 'dist',
+      exclude: ['**/__tests__/**']
+    })
   ],
+  external: ['react']
 }; 

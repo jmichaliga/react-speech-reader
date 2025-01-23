@@ -8,10 +8,15 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "strict": true,
+    "isolatedModules": true,
+    "noFallthroughCasesInSwitch": true,
     "jsx": "react",
     "esModuleInterop": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "declarationDir": "dist",
+    "outDir": "dist"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
