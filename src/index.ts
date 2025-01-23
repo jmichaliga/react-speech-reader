@@ -15,6 +15,7 @@ interface UseSpeechReaderReturn {
   speaking: boolean;
   supported: boolean;
   voices: SpeechSynthesisVoice[];
+  setVoice: (voice: SpeechSynthesisVoice) => void;
 }
 
 export const useSpeechReader = ({
@@ -81,6 +82,13 @@ export const useSpeechReader = ({
     setSpeaking(false);
   }, [supported]);
 
+  const setVoice = useCallback((voice: SpeechSynthesisVoice) => {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    setVoice(voice);
+  }, [supported]);
+
   return {
     speak,
     pause,
@@ -89,5 +97,6 @@ export const useSpeechReader = ({
     speaking,
     supported,
     voices,
+    setVoice,
   };
 }; 
