@@ -4,10 +4,9 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var react = require('react');
 
-var useSpeechReader = function (_a) {
-    var _b = _a === void 0 ? {} : _a, voice = _b.voice, _c = _b.rate, rate = _c === void 0 ? 1 : _c, _d = _b.pitch, pitch = _d === void 0 ? 1 : _d, _e = _b.volume, volume = _e === void 0 ? 1 : _e;
-    var _f = react.useState(false), speaking = _f[0], setSpeaking = _f[1];
-    var _g = react.useState([]), voices = _g[0], setVoices = _g[1];
+function useSpeechReader(options) {
+    var _a = react.useState(false), speaking = _a[0], setSpeaking = _a[1];
+    var _b = react.useState([]), voices = _b[0], setVoices = _b[1];
     var supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
     react.useEffect(function () {
         if (!supported)
@@ -29,16 +28,17 @@ var useSpeechReader = function (_a) {
         // Cancel any ongoing speech
         window.speechSynthesis.cancel();
         var utterance = new SpeechSynthesisUtterance(text);
-        if (voice)
-            utterance.voice = voice;
-        utterance.rate = rate;
-        utterance.pitch = pitch;
-        utterance.volume = volume;
+        if (options === null || options === void 0 ? void 0 : options.voice)
+            utterance.voice = options.voice;
+        if (options === null || options === void 0 ? void 0 : options.rate)
+            utterance.rate = options.rate;
+        if (options === null || options === void 0 ? void 0 : options.pitch)
+            utterance.pitch = options.pitch;
         utterance.onstart = function () { return setSpeaking(true); };
         utterance.onend = function () { return setSpeaking(false); };
         utterance.onerror = function () { return setSpeaking(false); };
         window.speechSynthesis.speak(utterance);
-    }, [supported, voice, rate, pitch, volume]);
+    }, [supported, options]);
     var pause = react.useCallback(function () {
         if (!supported)
             return;
@@ -49,22 +49,39 @@ var useSpeechReader = function (_a) {
             return;
         window.speechSynthesis.resume();
     }, [supported]);
-    var stop = react.useCallback(function () {
+    var cancel = react.useCallback(function () {
         if (!supported)
             return;
         window.speechSynthesis.cancel();
         setSpeaking(false);
     }, [supported]);
+    var setVoice = react.useCallback(function (voice) {
+        if (!supported)
+            return;
+        window.speechSynthesis.cancel();
+    }, [supported]);
+    var setRate = react.useCallback(function (rate) {
+        if (!supported)
+            return;
+        window.speechSynthesis.cancel();
+    }, [supported]);
+    var setPitch = react.useCallback(function (pitch) {
+        if (!supported)
+            return;
+        window.speechSynthesis.cancel();
+    }, [supported]);
     return {
         speak: speak,
         pause: pause,
         resume: resume,
-        stop: stop,
+        cancel: cancel,
         speaking: speaking,
-        supported: supported,
         voices: voices,
+        setVoice: setVoice,
+        setRate: setRate,
+        setPitch: setPitch,
     };
-};
+}
 
 exports.useSpeechReader = useSpeechReader;
 //# sourceMappingURL=index.js.map

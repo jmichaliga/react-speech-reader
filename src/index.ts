@@ -1,29 +1,24 @@
 import { useCallback, useEffect, useState } from 'react';
 
-interface UseSpeechReaderOptions {
-  voice?: SpeechSynthesisVoice;
+export interface SpeechReaderOptions {
   rate?: number;
   pitch?: number;
-  volume?: number;
+  voice?: SpeechSynthesisVoice;
 }
 
-interface UseSpeechReaderReturn {
+export interface SpeechReaderHook {
   speak: (text: string) => void;
-  pause: () => void;
-  resume: () => void;
-  stop: () => void;
   speaking: boolean;
-  supported: boolean;
   voices: SpeechSynthesisVoice[];
   setVoice: (voice: SpeechSynthesisVoice) => void;
+  setRate: (rate: number) => void;
+  setPitch: (pitch: number) => void;
+  pause: () => void;
+  resume: () => void;
+  cancel: () => void;
 }
 
-export const useSpeechReader = ({
-  voice,
-  rate = 1,
-  pitch = 1,
-  volume = 1,
-}: UseSpeechReaderOptions = {}): UseSpeechReaderReturn => {
+export function useSpeechReader(options?: SpeechReaderOptions): SpeechReaderHook {
   const [speaking, setSpeaking] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const supported = typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -54,17 +49,16 @@ export const useSpeechReader = ({
 
     const utterance = new SpeechSynthesisUtterance(text);
     
-    if (voice) utterance.voice = voice;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.volume = volume;
+    if (options?.voice) utterance.voice = options.voice;
+    if (options?.rate) utterance.rate = options.rate;
+    if (options?.pitch) utterance.pitch = options.pitch;
 
     utterance.onstart = () => setSpeaking(true);
     utterance.onend = () => setSpeaking(false);
     utterance.onerror = () => setSpeaking(false);
 
     window.speechSynthesis.speak(utterance);
-  }, [supported, voice, rate, pitch, volume]);
+  }, [supported, options]);
 
   const pause = useCallback(() => {
     if (!supported) return;
@@ -76,7 +70,7 @@ export const useSpeechReader = ({
     window.speechSynthesis.resume();
   }, [supported]);
 
-  const stop = useCallback(() => {
+  const cancel = useCallback(() => {
     if (!supported) return;
     window.speechSynthesis.cancel();
     setSpeaking(false);
@@ -85,18 +79,27 @@ export const useSpeechReader = ({
   const setVoice = useCallback((voice: SpeechSynthesisVoice) => {
     if (!supported) return;
     window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-    setVoice(voice);
+  }, [supported]);
+
+  const setRate = useCallback((rate: number) => {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
+  }, [supported]);
+
+  const setPitch = useCallback((pitch: number) => {
+    if (!supported) return;
+    window.speechSynthesis.cancel();
   }, [supported]);
 
   return {
     speak,
     pause,
     resume,
-    stop,
+    cancel,
     speaking,
-    supported,
     voices,
     setVoice,
+    setRate,
+    setPitch,
   };
-}; 
+} 

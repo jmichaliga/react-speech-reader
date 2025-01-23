@@ -9,6 +9,7 @@ A modern React application that converts text to speech using the Web Speech API
 - 🌐 Cross-browser compatibility
 - ⚡ Real-time speech synthesis
 - 🎛️ Adjustable speech rate and pitch
+- ⏯️ Full playback control (play, pause, resume, cancel)
 - 🎨 Clean and responsive UI
 
 ## Installation
@@ -29,7 +30,20 @@ yarn add react-speech-reader
 import { useSpeechReader } from 'react-speech-reader';
 
 function MyComponent() {
-  const { speak, speaking, voices, setVoice, setRate, setPitch } = useSpeechReader();
+  const { 
+    speak, 
+    speaking, 
+    voices,
+    setVoice,
+    setRate,
+    setPitch,
+    pause,
+    resume,
+    cancel
+  } = useSpeechReader({
+    rate: 1.0,
+    pitch: 1.0
+  });
 
   return (
     <div>
@@ -39,6 +53,9 @@ function MyComponent() {
       >
         Speak
       </button>
+      <button onClick={pause}>Pause</button>
+      <button onClick={resume}>Resume</button>
+      <button onClick={cancel}>Stop</button>
     </div>
   );
 }
@@ -46,22 +63,32 @@ function MyComponent() {
 
 ## API Reference
 
-### `useSpeechReader` Hook
-
-The main hook that provides speech functionality.
+### Types
 
 ```typescript
-const {
-  speak,
-  speaking,
-  voices,
-  setVoice,
-  setRate,
-  setPitch,
-  pause,
-  resume,
-  cancel
-} = useSpeechReader(options);
+interface SpeechReaderOptions {
+  rate?: number;        // Speech rate between 0.1 and 10
+  pitch?: number;       // Speech pitch between 0 and 2
+  voice?: SpeechSynthesisVoice;  // Browser's SpeechSynthesisVoice object
+}
+
+interface SpeechReaderHook {
+  speak: (text: string) => void;
+  speaking: boolean;
+  voices: SpeechSynthesisVoice[];
+  setVoice: (voice: SpeechSynthesisVoice) => void;
+  setRate: (rate: number) => void;
+  setPitch: (pitch: number) => void;
+  pause: () => void;
+  resume: () => void;
+  cancel: () => void;
+}
+```
+
+### `useSpeechReader` Hook
+
+```typescript
+function useSpeechReader(options?: SpeechReaderOptions): SpeechReaderHook;
 ```
 
 #### Options
@@ -86,16 +113,6 @@ const {
 | resume    | function | Function to resume speaking                     |
 | cancel    | function | Function to cancel speaking                     |
 
-## Browser Support
-
-This package uses the Web Speech API, which is supported in most modern browsers:
-
-- Chrome 33+
-- Edge 14+
-- Firefox 49+
-- Safari 7+
-- Opera 21+
-
 ## Examples
 
 ### Basic Usage
@@ -117,16 +134,27 @@ function TextReader() {
 }
 ```
 
-### Advanced Usage with Voice Selection
+### Advanced Usage with Full Controls
 
 ```typescript
 import { useSpeechReader } from 'react-speech-reader';
 
-function VoiceSelector() {
-  const { voices, setVoice, speak } = useSpeechReader();
+function AdvancedReader() {
+  const { 
+    speak, 
+    speaking, 
+    voices, 
+    setVoice, 
+    setRate, 
+    setPitch,
+    pause,
+    resume,
+    cancel
+  } = useSpeechReader();
   
   return (
     <div>
+      {/* Voice Selection */}
       <select onChange={(e) => setVoice(voices[e.target.value])}>
         {voices.map((voice, index) => (
           <option key={index} value={index}>
@@ -134,13 +162,56 @@ function VoiceSelector() {
           </option>
         ))}
       </select>
-      <button onClick={() => speak('Testing voice')}>
-        Test Voice
-      </button>
+
+      {/* Rate Control */}
+      <input 
+        type="range" 
+        min="0.1" 
+        max="10" 
+        step="0.1" 
+        defaultValue="1"
+        onChange={(e) => setRate(parseFloat(e.target.value))}
+      />
+
+      {/* Pitch Control */}
+      <input 
+        type="range" 
+        min="0" 
+        max="2" 
+        step="0.1" 
+        defaultValue="1"
+        onChange={(e) => setPitch(parseFloat(e.target.value))}
+      />
+
+      {/* Playback Controls */}
+      <div>
+        <button onClick={() => speak('Testing voice settings')}>
+          Speak
+        </button>
+        <button onClick={pause} disabled={!speaking}>
+          Pause
+        </button>
+        <button onClick={resume} disabled={!speaking}>
+          Resume
+        </button>
+        <button onClick={cancel} disabled={!speaking}>
+          Stop
+        </button>
+      </div>
     </div>
   );
 }
 ```
+
+## Browser Support
+
+This package uses the Web Speech API, which is supported in most modern browsers:
+
+- Chrome 33+
+- Edge 14+
+- Firefox 49+
+- Safari 7+
+- Opera 21+
 
 ## Contributing
 
